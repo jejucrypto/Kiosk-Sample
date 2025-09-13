@@ -2,21 +2,55 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import QRCode from 'qrcode';
 import { FaCheckCircle, FaDownload, FaHome, FaPrint } from 'react-icons/fa';
+import ThermalPrinter from '../utils/thermalPrinter';
 import './TicketComplete.css';
 
 function TicketComplete({ userData, setUserData }) {
   const navigate = useNavigate();
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [qrCodeDataURL, setQrCodeDataURL] = useState('');
+  const [thermalPrinter] = useState(new ThermalPrinter());
+  const [isPrinting, setIsPrinting] = useState(false);
 
   useEffect(() => {
-    // Auto-download PDF after 2 seconds
+    // Generate QR code when component mounts
+    generateQRCode();
+    
+    // Auto-print to thermal printer after 2 seconds
     const timer = setTimeout(() => {
-      downloadTicketPDF();
+      printThermalTicket();
     }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
+
+  const generateQRCode = async () => {
+    try {
+      const qrData = JSON.stringify({
+        transactionId: userData.transactionId,
+        name: userData.name,
+        facility: userData.selectedBuilding?.name,
+        amount: userData.ticketPrice,
+        date: new Date().toISOString(),
+        validUntil: new Date().setHours(23, 59, 59, 999)
+      });
+      
+      const qrCodeURL = await QRCode.toDataURL(qrData, {
+        width: 150,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
+      });
+      
+      setQrCodeDataURL(qrCodeURL);
+    } catch (error) {
+      console.error('Error generating QR code:', error);
+    }
+  };
 
   const formatDate = () => {
     const date = new Date();
@@ -38,7 +72,8 @@ function TicketComplete({ userData, setUserData }) {
 
   const getValidUntil = () => {
     const date = new Date();
-    date.setHours(date.getHours() + 8); // Valid for 8 hours
+    // Set to end of current day (11:59 PM)
+    date.setHours(23, 59, 59, 999);
     return date.toLocaleString('en-US', { 
       hour: '2-digit', 
       minute: '2-digit',
@@ -76,6 +111,51 @@ function TicketComplete({ userData, setUserData }) {
     }
     
     setIsGeneratingPDF(false);
+  };
+
+  const printThermalTicket = async () => {
+    setIsPrinting(true);
+    
+    try {
+      const ticketData = {
+        name: userData.name,
+        facility: userData.selectedBuilding?.name,
+        amount: userData.ticketPrice,
+        transactionId: userData.transactionId,
+        date: new Date().toISOString(),
+        qrCodeDataURL: qrCodeDataURL,
+        qrData: {
+          transactionId: userData.transactionId,
+          name: userData.name,
+          facility: userData.selectedBuilding?.name,
+          amount: userData.ticketPrice,
+          date: new Date().toISOString(),
+          validUntil: new Date().setHours(23, 59, 59, 999)
+        }
+      };
+
+      // Try Web Serial API first (for direct thermal printer connection)
+      if ('serial' in navigator) {
+        const commands = thermalPrinter.generateTicketCommands(ticketData);
+        const result = await thermalPrinter.printViaWebSerial(commands);
+        
+        if (result.success) {
+          console.log('Thermal printing successful');
+        } else {
+          console.log('Web Serial failed, falling back to system print');
+          await thermalPrinter.printViaSystemDialog(ticketData);
+        }
+      } else {
+        // Fallback to system print dialog
+        console.log('Web Serial not supported, using system print');
+        await thermalPrinter.printViaSystemDialog(ticketData);
+      }
+      
+    } catch (error) {
+      console.error('Thermal printing error:', error);
+    }
+    
+    setIsPrinting(false);
   };
 
   const startNewTransaction = () => {
@@ -146,18 +226,20 @@ function TicketComplete({ userData, setUserData }) {
                 </div>
                 <div className="price-info">
                   <span className="price-label">Amount Paid</span>
-                  <span className="price-value">${userData.ticketPrice}.00</span>
+                  <span className="price-value">₱{userData.ticketPrice}.00</span>
                 </div>
               </div>
 
               <div className="ticket-footer">
-                <div className="barcode-section">
-                  <div className="barcode-lines"></div>
-                  <div className="barcode-text">{userData.transactionId}</div>
+                <div className="qrcode-section">
+                  {qrCodeDataURL && (
+                    <img src={qrCodeDataURL} alt="QR Code" className="qr-code" />
+                  )}
+                  <div className="qrcode-text">{userData.transactionId}</div>
                 </div>
                 <div className="instructions">
                   <p>Please keep this ticket with you at all times</p>
-                  <p>Show this ticket at the entrance</p>
+                  <p>Scan QR code at the entrance</p>
                 </div>
               </div>
             </div>
@@ -165,6 +247,23 @@ function TicketComplete({ userData, setUserData }) {
         </div>
 
         <div className="action-buttons">
+          <button 
+            onClick={printThermalTicket} 
+            className="print-button"
+            disabled={isPrinting}
+          >
+            {isPrinting ? (
+              <>
+                <div className="spinner-small"></div>
+                Printing to Thermal Printer...
+              </>
+            ) : (
+              <>
+                <FaPrint /> Print Thermal Ticket
+              </>
+            )}
+          </button>
+
           <button 
             onClick={downloadTicketPDF} 
             className="download-button"
@@ -177,7 +276,7 @@ function TicketComplete({ userData, setUserData }) {
               </>
             ) : (
               <>
-                <FaDownload /> Download Ticket PDF
+                <FaDownload /> Download PDF Backup
               </>
             )}
           </button>
@@ -189,7 +288,7 @@ function TicketComplete({ userData, setUserData }) {
 
         <div className="print-notice">
           <FaPrint className="print-icon" />
-          <p>In a real kiosk, the ticket would be printed automatically</p>
+          <p>Ticket will be automatically printed to JP-58H thermal printer</p>
         </div>
       </div>
     </div>

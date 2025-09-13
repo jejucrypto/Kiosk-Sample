@@ -3,6 +3,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%), 
+              url('../images/campus.jpg') center/cover no-repeat;
   padding: 20px;
 }
 
@@ -26,6 +28,74 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.capture-options {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.mode-toggle {
+  display: flex;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 25px;
+  padding: 5px;
+  gap: 5px;
+}
+
+.mode-toggle button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 20px;
+  background: transparent;
+  color: #667eea;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.mode-toggle button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.upload-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 40px;
+  border: 2px dashed rgba(102, 126, 234, 0.3);
+  border-radius: 20px;
+  background: rgba(102, 126, 234, 0.05);
+  width: 400px;
+}
+
+.file-input {
+  display: none;
+}
+
+.upload-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.upload-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
 }
 
 .webcam-container {
@@ -115,7 +185,7 @@
   100% { transform: rotate(360deg); }
 }
 
-.name-input-container {
+.name-input-container, .age-input-container {
   margin-top: 30px;
   width: 100%;
   max-width: 500px;
@@ -125,12 +195,12 @@
   margin-bottom: 20px;
 }
 
-.name-input-container h3 {
+.name-input-container h3, .age-input-container h3 {
   color: #333;
   margin-bottom: 10px;
 }
 
-.name-input {
+.name-input, .age-input {
   width: 100%;
   padding: 15px;
   font-size: 18px;
@@ -139,9 +209,34 @@
   transition: border-color 0.3s ease;
 }
 
-.name-input:focus {
+.name-input:focus, .age-input:focus {
   outline: none;
   border-color: #667eea;
+}
+
+.name-input.error, .age-input.error {
+  border-color: #ff6b6b;
+}
+
+.error-message {
+  color: #ff6b6b;
+  font-size: 14px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+}
+
+.age-info {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 8px;
+  padding: 10px;
+  margin: 15px 0;
+}
+
+.age-info p {
+  margin: 0;
+  color: #4caf50;
+  font-size: 14px;
 }
 
 .proceed-button {

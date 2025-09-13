@@ -14,7 +14,10 @@ function LandingPage({ userData, setUserData }) {
   return (
     <div className="landing-page fade-in">
       <div className="landing-container">
-        <h1 className="landing-title">Welcome to Building Access System</h1>
+        <div className="campus-logo">
+          <img src={require('../images/campus_logo.png')} alt="Campus Logo" />
+        </div>
+        <h1 className="landing-title">Welcome to Campus Facility Access System</h1>
         <p className="landing-subtitle">Please select how you would like to proceed</p>
         
         <div className="choice-cards">

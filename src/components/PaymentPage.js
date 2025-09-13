@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaMoneyBillWave, FaCoins, FaCreditCard } from 'react-icons/fa';
+import { FaMoneyBillWave, FaCoins } from 'react-icons/fa';
 import './PaymentPage.css';
 
 function PaymentPage({ userData, setUserData }) {
@@ -70,7 +70,7 @@ function PaymentPage({ userData, setUserData }) {
               </div>
               <div className="summary-row total">
                 <span>Total Amount:</span>
-                <strong className="amount">${userData.ticketPrice}.00</strong>
+                <strong className="amount">₱{userData.ticketPrice}.00</strong>
               </div>
             </div>
           </div>
@@ -92,13 +92,6 @@ function PaymentPage({ userData, setUserData }) {
                 <FaCoins className="method-icon" />
                 <span>Coins</span>
               </div>
-              <div 
-                className={`method-card ${paymentMethod === 'card' ? 'selected' : ''}`}
-                onClick={() => handlePaymentMethod('card')}
-              >
-                <FaCreditCard className="method-icon" />
-                <span>Card (Demo)</span>
-              </div>
             </div>
           </div>
 
@@ -108,50 +101,37 @@ function PaymentPage({ userData, setUserData }) {
               
               {paymentMethod === 'bills' && (
                 <div className="bill-buttons">
-                  <button onClick={() => insertMoney(1)} className="bill-button">$1</button>
-                  <button onClick={() => insertMoney(5)} className="bill-button">$5</button>
-                  <button onClick={() => insertMoney(10)} className="bill-button">$10</button>
-                  <button onClick={() => insertMoney(20)} className="bill-button">$20</button>
-                  <button onClick={() => insertMoney(50)} className="bill-button">$50</button>
-                  <button onClick={() => insertMoney(100)} className="bill-button">$100</button>
+                  <button onClick={() => insertMoney(20)} className="bill-button">₱20</button>
+                  <button onClick={() => insertMoney(50)} className="bill-button">₱50</button>
+                  <button onClick={() => insertMoney(100)} className="bill-button">₱100</button>
+                  <button onClick={() => insertMoney(500)} className="bill-button">₱500</button>
                 </div>
               )}
 
               {paymentMethod === 'coins' && (
                 <div className="coin-buttons">
-                  <button onClick={() => insertMoney(0.25)} className="coin-button">25¢</button>
-                  <button onClick={() => insertMoney(0.50)} className="coin-button">50¢</button>
-                  <button onClick={() => insertMoney(1)} className="coin-button">$1</button>
-                </div>
-              )}
-
-              {paymentMethod === 'card' && (
-                <div className="card-demo">
-                  <p>Card payment simulation</p>
-                  <button 
-                    onClick={() => setInsertedAmount(userData.ticketPrice)} 
-                    className="card-pay-button"
-                  >
-                    Pay ${userData.ticketPrice}.00 with Card
-                  </button>
+                  <button onClick={() => insertMoney(1)} className="coin-button">₱1</button>
+                  <button onClick={() => insertMoney(5)} className="coin-button">₱5</button>
+                  <button onClick={() => insertMoney(10)} className="coin-button">₱10</button>
+                  <button onClick={() => insertMoney(20)} className="coin-button">₱20</button>
                 </div>
               )}
 
               <div className="payment-status">
                 <div className="status-row">
                   <span>Amount Due:</span>
-                  <strong>${userData.ticketPrice}.00</strong>
+                  <strong>₱{userData.ticketPrice}.00</strong>
                 </div>
                 <div className="status-row">
                   <span>Amount Inserted:</span>
                   <strong className={insertedAmount >= userData.ticketPrice ? 'sufficient' : ''}>
-                    ${insertedAmount.toFixed(2)}
+                    ₱{insertedAmount.toFixed(2)}
                   </strong>
                 </div>
                 {change > 0 && (
                   <div className="status-row change">
                     <span>Change:</span>
-                    <strong>${change.toFixed(2)}</strong>
+                    <strong>₱{change.toFixed(2)}</strong>
                   </div>
                 )}
               </div>

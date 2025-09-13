@@ -215,28 +215,25 @@
   padding-top: 20px;
 }
 
-.barcode-section {
-  text-align: center;
-  margin-bottom: 20px;
+.qrcode-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 
-.barcode-lines {
-  height: 60px;
-  background: repeating-linear-gradient(
-    90deg,
-    #333,
-    #333 3px,
-    white 3px,
-    white 7px
-  );
-  margin: 0 auto 10px;
-  width: 60%;
+.qr-code {
+  width: 100px;
+  height: 100px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
 }
 
-.barcode-text {
+.qrcode-text {
   font-family: 'Courier New', monospace;
-  font-size: 14px;
-  color: #666;
+  font-size: 12px;
+  font-weight: bold;
+  color: #333;
 }
 
 .instructions {

@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaBuilding, FaHospital, FaSchool, FaStore, FaWarehouse, FaHome } from 'react-icons/fa';
+import { FaRunning, FaBasketballBall, FaTableTennis, FaSwimmer, FaDumbbell, FaVolleyballBall } from 'react-icons/fa';
 import './BuildingSelection.css';
 
 function BuildingSelection({ userData, setUserData }) {
   const navigate = useNavigate();
   const [selectedBuilding, setSelectedBuilding] = useState(null);
 
-  const buildings = [
-    { id: 1, name: 'Main Office', icon: FaBuilding, price: 50, color: '#4CAF50' },
-    { id: 2, name: 'Medical Center', icon: FaHospital, price: 75, color: '#2196F3' },
-    { id: 3, name: 'Education Wing', icon: FaSchool, price: 40, color: '#FF9800' },
-    { id: 4, name: 'Shopping Complex', icon: FaStore, price: 30, color: '#9C27B0' },
-    { id: 5, name: 'Storage Facility', icon: FaWarehouse, price: 25, color: '#795548' },
-    { id: 6, name: 'Residential Area', icon: FaHome, price: 60, color: '#E91E63' }
+  const facilities = [
+    { id: 1, name: 'Oval', icon: FaRunning, price: 20, color: '#4CAF50' },
+    { id: 2, name: 'Basketball Gym/Kadasig Gym', icon: FaBasketballBall, price: 20, color: '#FF9800' },
+    { id: 3, name: 'Badminton Court', icon: FaVolleyballBall, price: 20, color: '#2196F3' },
+    { id: 4, name: 'Tennis Court', icon: FaTableTennis, price: 20, color: '#9C27B0' },
+    { id: 5, name: 'Swimming Pool', icon: FaSwimmer, price: 100, color: '#00BCD4' },
+    { id: 6, name: 'Fitness Gym', icon: FaDumbbell, price: 50, color: '#E91E63' }
   ];
 
   const handleBuildingSelect = (building) => {
@@ -22,10 +22,18 @@ function BuildingSelection({ userData, setUserData }) {
 
   const proceedToPayment = () => {
     if (selectedBuilding) {
+      // Calculate price with age discount
+      let finalPrice = selectedBuilding.price;
+      if (userData.age && userData.age < 12) {
+        finalPrice = selectedBuilding.price * 0.5; // 50% discount for under 12
+      }
+      
       setUserData({
         ...userData,
         selectedBuilding: selectedBuilding,
-        ticketPrice: selectedBuilding.price
+        ticketPrice: finalPrice,
+        originalPrice: selectedBuilding.price,
+        hasDiscount: userData.age && userData.age < 12
       });
       navigate('/payment');
     }
@@ -78,16 +86,35 @@ function BuildingSelection({ userData, setUserData }) {
                 </div>
                 
                 <div className="info-row">
-                  <span className="label">Building:</span>
+                  <span className="label">Facility:</span>
                   <span className="value">
                     {selectedBuilding ? selectedBuilding.name : 'Not Selected'}
                   </span>
                 </div>
                 
+                {userData.age && (
+                  <div className="info-row">
+                    <span className="label">Age:</span>
+                    <span className="value">{userData.age}</span>
+                  </div>
+                )}
+                
                 <div className="info-row">
                   <span className="label">Access Fee:</span>
                   <span className="value price">
-                    ${selectedBuilding ? selectedBuilding.price : '0'}.00
+                    {selectedBuilding ? (
+                      <>
+                        {userData.age && userData.age < 12 ? (
+                          <>
+                            <span className="original-price">₱{selectedBuilding.price}.00</span>
+                            <span className="discounted-price">₱{(selectedBuilding.price * 0.5).toFixed(2)}</span>
+                            <span className="discount-label">(50% Child Discount)</span>
+                          </>
+                        ) : (
+                          `₱${selectedBuilding.price}.00`
+                        )}
+                      </>
+                    ) : '₱0.00'}
                   </span>
                 </div>
               </div>
@@ -101,22 +128,33 @@ function BuildingSelection({ userData, setUserData }) {
         </div>
         
         <div className="buildings-section">
-          <h1 className="section-title">Select Building to Access</h1>
+          <h1 className="section-title">Select Facility to Access</h1>
           <p className="section-subtitle">Choose your destination and view access fee</p>
           
           <div className="buildings-grid">
-            {buildings.map((building) => {
-              const Icon = building.icon;
+            {facilities.map((facility) => {
+              const Icon = facility.icon;
+              const displayPrice = userData.age && userData.age < 12 ? 
+                (facility.price * 0.5).toFixed(2) : facility.price.toFixed(2);
               return (
                 <div
-                  key={building.id}
-                  className={`building-card ${selectedBuilding?.id === building.id ? 'selected' : ''}`}
-                  onClick={() => handleBuildingSelect(building)}
-                  style={{ '--building-color': building.color }}
+                  key={facility.id}
+                  className={`building-card ${selectedBuilding?.id === facility.id ? 'selected' : ''}`}
+                  onClick={() => handleBuildingSelect(facility)}
+                  style={{ '--building-color': facility.color }}
                 >
                   <Icon className="building-icon" />
-                  <h3>{building.name}</h3>
-                  <div className="building-price">${building.price}.00</div>
+                  <h3>{facility.name}</h3>
+                  <div className="building-price">
+                    {userData.age && userData.age < 12 ? (
+                      <>
+                        <span className="original-price">₱{facility.price}.00</span>
+                        <span className="discounted-price">₱{displayPrice}</span>
+                      </>
+                    ) : (
+                      `₱${facility.price}.00`
+                    )}
+                  </div>
                 </div>
               );
             })}
